@@ -17,8 +17,8 @@ public class GameEndEvent extends Event implements Cancellable
         this.cancelled = false;
     }
 
-    public Arena getArena() {
-        return arena;
+    public UUID getId() {
+        return id;
     }
 
     @Override

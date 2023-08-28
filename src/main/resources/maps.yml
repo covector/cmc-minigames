@@ -1,0 +1,13 @@
+HotPotato:
+  SkyValley:
+    world: world
+    lobby: 0, 0, 0
+    spectator: 0, 0, 0
+    spawnLocations:
+      - 0, 0, 0
+  Candyland:
+    world: world
+    lobby: 0, 0, 0
+    spectator: 0, 0, 0
+    spawnLocations:
+      - 0, 0, 0
