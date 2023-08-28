@@ -8,6 +8,7 @@ import org.bukkit.Color;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Collections;
 
 import dev.covector.cmcminigames.Game;
 
@@ -30,6 +31,7 @@ public abstract class TeamGame extends WinLostGame {
         }
 
         // distribute the remaining players to teams
+        Collections.shuffle(noTeamPlayers);
         for (Player player : noTeamPlayers) {
             Team smallestTeam = null;
             for (Team team : teams) {
@@ -39,6 +41,26 @@ public abstract class TeamGame extends WinLostGame {
                     break;
                 }
             }
+        }
+    }
+
+    public void teleportPlayersToTeamSpawns() {
+        if (teams == null) {
+            Bukkit.getLogger().warning("Teams have not been created yet!");
+            return;
+        }
+        if (gameMeta.spawnLocations.size() < teams.size()) {
+            Bukkit.getLogger().warning("Not enough spawn locations for all teams!");
+            return;
+        }
+
+        // each spawn location is for a team
+        int i = 0;
+        for (Team team : teams) {
+            for (Player player : team.members) {
+                player.teleport(gameMeta.spawnLocations.get(i));
+            }
+            i++;
         }
     }
 
