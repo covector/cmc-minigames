@@ -9,8 +9,9 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
-public class ComamndHandler implements CommandExecutor {    
+public class CommandHandler implements CommandExecutor {    
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        return true;
     }
 }

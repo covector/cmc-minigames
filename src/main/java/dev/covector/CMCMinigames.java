@@ -1,13 +1,14 @@
 package dev.covector.cmcminigames;
 
-public class CMCMinigames 
-{
+import org.bukkit.plugin.java.JavaPlugin;
+
+public class CMCMinigames extends JavaPlugin{
     public static CMCMinigames plugin;
 
     @Override
     public void onEnable() {
         plugin = this;
-        GameManager.getInstance();
+        GamesManager.getInstance();
         CommandHandler commandHandler = new CommandHandler();
         getCommand("mg").setExecutor(commandHandler);
         getLogger().info("CMC Minigames Plugin Activated!");

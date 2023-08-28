@@ -5,15 +5,16 @@ import org.bukkit.event.Listener;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
-public class GameManager implements Listener {
-    public static GameManager manager;
+public class GamesManager implements Listener {
+    public static GamesManager manager;
     private HashMap<UUID, Game> activeGames = new HashMap<UUID, Game>();
     private HashMap<String, List<Player>> waitingPlayers = new HashMap<String, List<Player>>();
 
-    public GameManager getInstance() {
+    public static GamesManager getInstance() {
         if (manager == null) {
-            manager = new GameManager();
+            manager = new GamesManager();
         }
         return manager;
     }
@@ -26,11 +27,11 @@ public class GameManager implements Listener {
         }
 
         UUID gameID = UUID.randomUUID();
-        game.init(gameID, players)
+        // game.init(gameID, players);
 
-        if (!game.start()) {
-            return "Game failed to start!";
-        }
+        // if (!game.start()) {
+        //     return "Game failed to start!";
+        // }
         
         activeGames.put(gameID, game);
         return null;

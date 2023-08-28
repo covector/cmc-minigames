@@ -6,16 +6,21 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.Color;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
+import java.util.Arrays;
 
 public class HotPotatoItems {
     public void giveHotPotatoItems(Player player, HotPotato.Mode mode) {
+        player.getInventory().clear();
+
+        // give armor
         if (mode == HotPotato.Mode.SUSSY) {
-            giveSurvivorItems(player);
+            equipColoredArmor(player, Color.AQUA);
         } else if (mode == HotPotato.Mode.CLASSIC) {
-            player.getInventory().clear();
-            // give red armor
             equipColoredArmor(player, Color.RED);
         }
 
@@ -26,12 +31,18 @@ public class HotPotatoItems {
         itemMeta.setLore(Arrays.asList(ChatColor.GRAY + "Pass this to another player before it explodes!"));
         item.setItemMeta(itemMeta);
         player.getInventory().addItem(item);
+
+        // give speed
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1));
     }
 
     public void giveSurvivorItems(Player player) {
+        // give armor
         player.getInventory().clear();
-        // give blue armor
         equipColoredArmor(player, Color.AQUA);
+
+        // remove speed
+        player.removePotionEffect(PotionEffectType.SPEED);
     }
 
     private void equipColoredArmor(Player player, Color color) {

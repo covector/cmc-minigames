@@ -3,15 +3,17 @@ package dev.covector.cmcminigames;
 import java.util.Arrays;
 import java.util.List;
 
-public static class GameRegistry
+import dev.covector.cmcminigames.hotpotato.HotPotato;
+
+public class GameRegistry
 {
-    List<Class<Game>> gameList = Arrays.asList(
+    private static List<Class> gameList = Arrays.asList(
         // Add games here
         HotPotato.class
     );
 
-    public static Game initGame(String gameName) {
-        Class<Game> gameClass = getGameClass(gameName);
+    public static <T extends Game> Game initGame(String gameName) {
+        Class<T> gameClass = getGameClass(gameName);
         if (gameClass == null) {
             return null;
         }
@@ -33,8 +35,8 @@ public static class GameRegistry
         return getGameClass(gameName).getName();
     }
 
-    private static Class<Game> getGameClass(String gameName) {
-        for (Class<Game> game : gameList) {
+    private static <T extends Game> Class<T> getGameClass(String gameName) {
+        for (Class<T> game : gameList) {
             if (game.getName().toLowerCase().equals(gameName.toLowerCase().replaceAll("_", "").replaceAll("-", ""))) {
                 return game;
             }

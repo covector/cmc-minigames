@@ -4,6 +4,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.Bukkit;
 
+import dev.covector.cmcminigames.Game;
+
 public abstract class WinLostGame extends Game {
     public void win(Player player) {
         Bukkit.broadcastMessage(ChatColor.GREEN + player.getName() + " has won!");
