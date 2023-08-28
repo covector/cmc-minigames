@@ -13,9 +13,10 @@ public abstract class Game {
     protected List<UUID> playerUUIDs;
     protected GameMeta gameMeta;
 
-    public void init(UUID id, List<UUID> playerUUIDs) {
+    public void init(UUID id, List<UUID> playerUUIDs, GameMeta gameMeta) {
         this.id = id;
         this.playerUUIDs = playerUUIDs;
+        this.gameMeta = gameMeta;
     }
 
     public void end() {

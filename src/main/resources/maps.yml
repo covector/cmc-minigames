@@ -3,11 +3,11 @@ HotPotato:
     world: world
     lobby: 0, 0, 0
     spectator: 0, 0, 0
-    spawnLocations:
+    spawns:
       - 0, 0, 0
   Candyland:
     world: world
     lobby: 0, 0, 0
     spectator: 0, 0, 0
-    spawnLocations:
+    spawns:
       - 0, 0, 0
