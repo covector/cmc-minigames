@@ -25,7 +25,7 @@ public class HotPotatoItems {
         }
 
         // give potato
-        ItemStack item = new ItemStack(Material.POTATO);
+        ItemStack item = new ItemStack(Material.BAKED_POTATO);
         ItemMeta itemMeta = item.getItemMeta();
         itemMeta.setDisplayName(ChatColor.RED + "Hot Potato");
         itemMeta.setLore(Arrays.asList(ChatColor.GRAY + "Pass this to another player before it explodes!"));

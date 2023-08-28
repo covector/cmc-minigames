@@ -91,6 +91,7 @@ public class HotPotato extends WinLostGame {
 
     public void removePlayer(Player player) {
         playerAliveUUIDs.remove(player.getUniqueId());
+        hotPotatoGameEndCheck();
     }
 
     public void setSpectator(Player player) {
@@ -123,6 +124,7 @@ public class HotPotato extends WinLostGame {
                     player.sendMessage(ChatColor.RED + potatoHolder.getName() + " tried to escape the explosion by logging out. As a result, they blew up in real life.");
                 }
             }
+            hotPotatoGameEndCheck();
             return;
         }
 
@@ -141,6 +143,8 @@ public class HotPotato extends WinLostGame {
                 player.sendMessage(ChatColor.RED + potatoHolder.getName() + " has exploded!");
             }
         }
+
+        hotPotatoGameEndCheck();
     }
 
     public void nextRound() {
