@@ -55,7 +55,7 @@ public class ExplosionTimer extends BukkitRunnable {
                     countDown = postRoundPeriod;
                 } else {
                     if (announceTime(countDown)) {
-                        for (Player player: hotpotato.getPlayers()) {
+                        for (Player player: hotpotato.getOnlinePlayers()) {
                             player.sendMessage(ChatColor.RED + "The potato will explode in " + countDown + " seconds!");
                         }
                     }

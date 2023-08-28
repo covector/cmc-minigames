@@ -6,9 +6,12 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.ChatColor;
+import org.bukkit.Bukkit;
+import org.bukkit.event.Listener;
 
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 import dev.covector.cmcminigames.abs.WinLostGame;
 import dev.covector.cmcminigames.Utils;
@@ -17,8 +20,8 @@ public class HotPotato extends WinLostGame {
     private HotPotatoListener listener;
     private ExplosionTimer timer;
     private HotPotatoItems items;
-    private List<Player> playersAlive;
-    private Player potatoHolder;
+    private List<UUID> playerAliveUUIDs;
+    private UUID potatoHolderUUID;
     private Mode mode;
     private boolean resetOnTag;
     private Random random = new Random();
@@ -36,7 +39,7 @@ public class HotPotato extends WinLostGame {
     @Override
     public boolean start(List<String> args) {
         // check if at least 2 players, if not return false
-        if (players.size() < 2) {
+        if (playerUUIDs.size() < 2) {
             return false;
         }
 
@@ -56,14 +59,18 @@ public class HotPotato extends WinLostGame {
         timer.startTimer(roundLength);
 
         // choose random player to hold potato
-        potatoHolder = players.get(random.nextInt(players.size()));
+        potatoHolderUUID = playerUUIDs.get(random.nextInt(playerUUIDs.size()));
         // teleport players to spawns
-        Utils.distributePlayers(players, gameMeta.spawnLocations);
-        for (Player player : players) {
+        Utils.distributePlayers(getOnlinePlayers(), gameMeta.spawnLocations);
+        for (UUID playerUUID : playerUUIDs) {
             // add all players to alive list
-            playersAlive.add(player);
+            playerAliveUUIDs.add(playerUUID);
+
+            Player player = Bukkit.getPlayer(playerUUID);
+            if (player == null) continue;
+
             // give appropriate items
-            if (player == potatoHolder) {
+            if (playerUUID == potatoHolderUUID) {
                 items.giveHotPotatoItems(player, mode);
             } else {
                 items.giveSurvivorItems(player);
@@ -74,7 +81,7 @@ public class HotPotato extends WinLostGame {
     }
 
     public void passPotato(Player from, Player to) {
-        potatoHolder = to;
+        potatoHolderUUID = to.getUniqueId();
         items.giveHotPotatoItems(to, mode);
         items.giveSurvivorItems(from);
         if (resetOnTag) {
@@ -82,9 +89,8 @@ public class HotPotato extends WinLostGame {
         }
     }
 
-    public void killPlayer(Player player) {
-        player.setHealth(0);
-        playersAlive.remove(player);
+    public void removePlayer(Player player) {
+        playerAliveUUIDs.remove(player.getUniqueId());
     }
 
     public void setSpectator(Player player) {
@@ -94,8 +100,11 @@ public class HotPotato extends WinLostGame {
     }
 
     public void gracePeriodEnd() {
-        for (Player player : players) {
-            player.sendMessage(ChatColor.RED + "Grace period has ended!");
+        for (UUID playerUUID : playerUUIDs) {
+            Player player = Bukkit.getPlayer(playerUUID);
+            if (player != null) {
+                player.sendMessage(ChatColor.RED + "Grace period has ended!");
+            }
         }
     }
 
@@ -104,34 +113,52 @@ public class HotPotato extends WinLostGame {
     }
 
     public void roundEnd() {
+        Player potatoHolder = Bukkit.getPlayer(potatoHolderUUID);
+
+        // lil bro disconnected
+        if (potatoHolder == null) {
+            for (UUID playerUUID : playerUUIDs) {
+                Player player = Bukkit.getPlayer(playerUUID);
+                if (player != null) {
+                    player.sendMessage(ChatColor.RED + potatoHolder.getName() + " tried to escape the explosion by logging out. As a result, they blew up in real life.");
+                }
+            }
+            return;
+        }
+
+        // normal explosion sequence
         Location explosionLocation = potatoHolder.getLocation().clone().add(0, 1, 0);
         // kill potato holder
-        killPlayer(potatoHolder);
+        potatoHolder.setHealth(0);
+        playerAliveUUIDs.remove(potatoHolderUUID);
         // spawn explosion and play sound
         explosionLocation.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, explosionLocation, 64, 0, 0, 0, 1.5);
         explosionLocation.getWorld().playSound(explosionLocation, Sound.ENTITY_GENERIC_EXPLODE, 1, 1);
 
-        for (Player player : players) {
-            player.sendMessage(ChatColor.RED + potatoHolder.getName() + " has exploded!");
+        for (UUID playerUUID : playerUUIDs) {
+            Player player = Bukkit.getPlayer(playerUUID);
+            if (player != null) {
+                player.sendMessage(ChatColor.RED + potatoHolder.getName() + " has exploded!");
+            }
         }
     }
 
     public void nextRound() {
         // choose random player to hold potato
-        potatoHolder = playersAlive.get(random.nextInt(playersAlive.size()));
-        items.giveHotPotatoItems(potatoHolder, mode);
+        potatoHolderUUID = playerAliveUUIDs.get(random.nextInt(playerAliveUUIDs.size()));
+        items.giveHotPotatoItems(getPotatoHolder(), mode);
     }
 
     public void hotPotatoGameEndCheck() {
-        if (playersAlive.size() == 1) {
-            super.win(playersAlive.get(0));
+        if (playerAliveUUIDs.size() == 1) {
+            super.win(playerAliveUUIDs.get(0));
             listener.unregister();
             timer.stopTimer();
         }
     }
 
     public Player getPotatoHolder() {
-        return potatoHolder;
+        return Bukkit.getPlayer(potatoHolderUUID);
     }
 
     enum Mode {

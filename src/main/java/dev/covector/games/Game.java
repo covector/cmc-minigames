@@ -5,16 +5,17 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.ArrayList;
 
 public abstract class Game {
     // DON'T OVERRIDE THESE
     private UUID id;
-    protected List<Player> players;
+    protected List<UUID> playerUUIDs;
     protected GameMeta gameMeta;
 
-    public void init(UUID id, List<Player> players) {
+    public void init(UUID id, List<UUID> playerUUIDs) {
         this.id = id;
-        this.players = players;
+        this.playerUUIDs = playerUUIDs;
     }
 
     public void end() {
@@ -22,12 +23,27 @@ public abstract class Game {
         Bukkit.getPluginManager().callEvent(event);
     }
 
-    public List<Player> getPlayers() {
-        return players;
+    public List<UUID> getPlayerUUIDs() { // will also return offline players
+        return playerUUIDs;
+    }
+
+    public List<Player> getOnlinePlayers() { // will only return online players
+        List<Player> onlinePlayers = new ArrayList<Player>();
+        for (UUID uuid : playerUUIDs) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
+                onlinePlayers.add(player);
+            }
+        }
+        return onlinePlayers;
     }
 
     public boolean playerIsInGame(Player player) {
-        return players.contains(player);
+        return playerUUIDs.contains(player.getUniqueId());
+    }
+
+    public boolean playerIsInGame(UUID playerUUID) {
+        return playerUUIDs.contains(playerUUID);
     }
 
     public GameMeta getGameMeta() {
