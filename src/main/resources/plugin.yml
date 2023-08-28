@@ -1,0 +1,10 @@
+main: dev.covector.cmcminigames.CMCMinigames
+name: CMCMinigames
+version: 1.0
+api-version: '1.20'
+
+commands:
+   mg:
+      description: Command for CMC Minigames
+      usage: Failed to run CMC Minigames command
+      aliases: [minigame, minigames, cmcminigames, cmcmg]
