@@ -11,4 +11,9 @@ public abstract class WinLostGame extends Game {
         Bukkit.broadcastMessage(ChatColor.GREEN + player.getName() + " has won!");
         super.end();
     }
+
+    public void win(TeamGame.Team team) {
+        Bukkit.broadcastMessage(ChatColor.GREEN + team.teamName + " has won!");
+        super.end();
+    }
 }
