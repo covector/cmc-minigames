@@ -11,12 +11,12 @@ public abstract class Game {
     // DON'T OVERRIDE THESE
     private UUID id;
     protected List<UUID> playerUUIDs;
-    protected GameMeta gameMeta;
+    protected MapInfo mapInfo;
 
-    public void init(UUID id, List<UUID> playerUUIDs, GameMeta gameMeta) {
+    public void init(UUID id, List<UUID> playerUUIDs, MapInfo mapInfo) {
         this.id = id;
         this.playerUUIDs = playerUUIDs;
-        this.gameMeta = gameMeta;
+        this.mapInfo = mapInfo;
     }
 
     public void end() {
@@ -47,8 +47,8 @@ public abstract class Game {
         return playerUUIDs.contains(playerUUID);
     }
 
-    public GameMeta getGameMeta() {
-        return gameMeta;
+    public MapInfo getMapInfo() {
+        return mapInfo;
     }
 
     // ONLY OVERRIDE THESE

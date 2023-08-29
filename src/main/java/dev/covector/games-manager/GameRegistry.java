@@ -38,6 +38,7 @@ public class GameRegistry
     private static <T extends Game> Class<T> getGameClass(String gameName) {
         for (Class<T> game : gameList) {
             if (game.getName().toLowerCase().equals(gameName.toLowerCase().replaceAll("_", "").replaceAll("-", ""))) {
+                DebugLogger.log(gameName + " matched with " + game.getName(), 2);
                 return game;
             }
         }

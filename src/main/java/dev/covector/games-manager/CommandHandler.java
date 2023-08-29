@@ -41,6 +41,13 @@ public class CommandHandler implements CommandExecutor {
                 return false;
             }
             return true;
+        } else if (args[0].equals("debug")) {
+            int logLevel = Integer.parseInt(args[1]);
+            DebugLogger.setLogLevel(logLevel);
+            sender.sendMessage(ChatColor.GREEN + "Set log level to " + logLevel + "!");
+        } else if (args[0].equals("reload") && args[1].equals("maps")) {
+            GamesManager.getInstance().loadMaps();
+            sender.sendMessage(ChatColor.GREEN + "Reloaded maps!");
         }
 
         return false;

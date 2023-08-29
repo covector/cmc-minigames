@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.UUID;
 
 import dev.covector.cmcminigames.Game;
+import dev.covector.cmcminigames.DebugLogger;
 
 public abstract class TeamGame extends WinLostGame {
     protected List<Team> teams;
@@ -21,34 +22,61 @@ public abstract class TeamGame extends WinLostGame {
     public void createTeams(List<Team> teams) {
         this.teams = teams;
 
-        if (gameMeta.spawnLocations.size() < teams.size()) {
+        if (mapInfo.spawnLocations.size() < teams.size()) {
             Bukkit.getLogger().warning("Not enough spawn locations for all teams!");
             return;
         }
         
         // count team sizes and record players that arent in any team
         ArrayList<Integer> teamSizes = new ArrayList<>();
+        ArrayList<Team> IndTeamMap = new ArrayList<>();
         ArrayList<UUID> noTeamPlayers = new ArrayList<>(playerUUIDs);
         int i = 0;
         for (Team team : teams) {
             for (UUID playerUUID : team.members) {
                 noTeamPlayers.remove(playerUUID);
                 playerTeamMap.put(playerUUID, team);
+                if (DebugLogger.willLog(2))
+                    DebugLogger.log("Player " + Bukkit.getOfflinePlayer(playerUUID).getName() + " is in team " + team.teamName, 2);
             }
+            IndTeamMap.add(team);
             teamSizes.add(team.members.size());
             // assign spawn to team
-            team.setSpawnLocation(gameMeta.spawnLocations.get(i));
+            team.setSpawnLocation(mapInfo.spawnLocations.get(i));
+        }
+        if (DebugLogger.willLog(1)) {
+            for (int j = 0; j < teams.size(); j++) {
+                DebugLogger.log("Team " + teams.get(j).teamName + " has " + String.valueOf(teamSizes.get(j)) + " players", 1);
+            }
+            for (UUID playerUUID : noTeamPlayers) {
+                DebugLogger.log("Player " + Bukkit.getOfflinePlayer(playerUUID).getName() + " is not in a team", 1);
+            }
         }
 
         // distribute the remaining players to teams
         Collections.shuffle(noTeamPlayers);
         for (UUID playerUUID : noTeamPlayers) {
-            Team smallestTeam = null;
+            int smallestTeam = 0;
+            for (int j = 1; j < teamSizes.size(); j++) {
+                if (teamSizes.get(j) < teamSizes.get(smallestTeam)) {
+                    smallestTeam = j;
+                }
+            }
+            IndTeamMap.get(smallestTeam).addMember(playerUUID);
+            playerTeamMap.put(playerUUID, IndTeamMap.get(smallestTeam));
+            if (DebugLogger.willLog(2))
+                DebugLogger.log("Player " + Bukkit.getOfflinePlayer(playerUUID).getName() + " is in team " + IndTeamMap.get(smallestTeam).teamName, 2);
+        }
+
+        
+        if (DebugLogger.willLog(1)) {
+            DebugLogger.log("Final team allocation: ", 1);
             for (Team team : teams) {
-                if (smallestTeam == null || team.members.size() < smallestTeam.members.size()) {
-                    smallestTeam.addMember(playerUUID);
-                    playerTeamMap.put(playerUUID, team);
-                    break;
+                DebugLogger.log("Team " + team.teamName + " has " + String.valueOf(team.members.size()) + " players", 1);
+                if (DebugLogger.willLog(2)) {
+                    for (UUID playerUUID : team.members) {
+                        DebugLogger.log("Player " + Bukkit.getOfflinePlayer(playerUUID).getName() + " is in team " + team.teamName, 2);
+                    }
                 }
             }
         }

@@ -24,8 +24,9 @@ public class GamesManager implements Listener {
     public static GamesManager manager;
     private HashMap<UUID, Game> activeGames = new HashMap<UUID, Game>();
     private HashMap<String, List<Player>> queuingPlayers = new HashMap<String, List<Player>>();
+    private HashMap<Player, String> playerQueuedGame = new HashMap<Player, String>();
     private HashMap<UUID, Game> playerGameMap = new HashMap<UUID, Game>();
-    private HashMap<String, HashMap<String, GameMeta>> gameMetaMap = new HashMap<String, HashMap<String, GameMeta>>();
+    private HashMap<String, HashMap<String, MapInfo>> mapInfos;
 
     public static GamesManager getInstance() {
         if (manager == null) {
@@ -51,16 +52,24 @@ public class GamesManager implements Listener {
                 players.add(player.getUniqueId());
                 playerGameMap.put(player.getUniqueId(), game);
             }
+            playerQueuedGame.remove(player);
         }
-        if (gameMetaMap.get(gameOfficialName) == null) {
+        if (mapInfos.get(gameOfficialName) == null) {
             return "Game not configured!";
         }
-        GameMeta gameMeta = gameMetaMap.get(gameOfficialName).get(mapName);
-        if (gameMeta == null) {
+        MapInfo mapInfo = mapInfos.get(gameOfficialName).get(mapName);
+        if (mapInfo == null) {
             return "Map not found!";
         }
     
-        game.init(gameID, players, gameMeta);
+        game.init(gameID, players, mapInfo);
+        DebugLogger.log("game start called: " + game.getClass().getName(), 1);
+        if (DebugLogger.willLog(1)) {
+            for (UUID playerUUID : players) {
+                DebugLogger.log("player: " + Bukkit.getPlayer(playerUUID).getName(), 1);
+            }
+        }
+        DebugLogger.log("map: " + mapName, 1);
 
         if (!game.start(gameArgs)) {
             return "Game failed to start!";
@@ -76,18 +85,20 @@ public class GamesManager implements Listener {
         if (playerGameMap.containsKey(player.getUniqueId())) {
             return "You are already in a game!";
         }
-        String gameOfficialName = GameRegistry.getGameName(gameName);
-        if (!GameRegistry.hasGame(gameOfficialName)) {
-            return "Game not found!";
-        }
-        if (queuingPlayers.containsKey(gameOfficialName) && queuingPlayers.get(gameOfficialName).contains(player)) {
+        if (playerQueuedGame.containsKey(player)) {
             return "You are already in the queue!";
+        }
+        String gameOfficialName = GameRegistry.getGameName(gameName);
+        if (gameOfficialName == null) {
+            return "Game not found!";
         }
         if (queuingPlayers.containsKey(gameOfficialName)) {
             queuingPlayers.get(gameOfficialName).add(player);
         } else {
             queuingPlayers.put(gameOfficialName, Arrays.asList(player));
         }
+        playerQueuedGame.put(player, gameOfficialName);
+        DebugLogger.log(player.getName() + " queued in " + gameOfficialName, 1);
         return null;
     }
 
@@ -98,6 +109,15 @@ public class GamesManager implements Listener {
             playerGameMap.remove(playerUUID);
         }
         activeGames.remove(event.getId());
+        DebugLogger.log("game ended: " + game.getClass().getName(), 1);
+    }
+
+    public void registerListeners() {
+        Bukkit.getPluginManager().registerEvents(this, CMCMinigames.plugin);
+    }
+
+    public void unregisterListeners() {
+        GameEndEvent.getHandlerList().unregister(this);
     }
 
     public void loadMaps() {
@@ -115,15 +135,16 @@ public class GamesManager implements Listener {
             e.printStackTrace();
         }
 
-        // load maps into gameMetaMap
+        // load maps into mapInfo
+        mapInfos = new HashMap<String, HashMap<String, MapInfo>>();
         for (String gameKey : customConfig.getKeys(false)) {
             String gameOfficialName = GameRegistry.getGameName(gameKey);
             if (gameOfficialName == null) {
                 Bukkit.getLogger().warning("Game " + gameKey + " not found!");
                 continue;
             }
-            if (gameMetaMap.get(gameOfficialName) == null) {
-                gameMetaMap.put(gameOfficialName, new HashMap<String, GameMeta>());
+            if (mapInfos.get(gameOfficialName) == null) {
+                mapInfos.put(gameOfficialName, new HashMap<String, MapInfo>());
             }
             ConfigurationSection section = customConfig.getConfigurationSection(gameKey);
             for (String mapKey : section.getKeys(false)) {
@@ -132,11 +153,6 @@ public class GamesManager implements Listener {
                 World world = Bukkit.getWorld(mapSection.getString("world"));
                 if (world == null) {
                     Bukkit.getLogger().warning("World " + mapSection.getString("world") + " not found!");
-                    continue;
-                }
-                Location lobbyLocation = parseVector(mapSection.getString("lobby")).toLocation(world);
-                if (lobbyLocation == null) {
-                    Bukkit.getLogger().warning("Invalid lobby location for map " + mapName + "!");
                     continue;
                 }
                 Location spectatorLocation = parseVector(mapSection.getString("spectator")).toLocation(world);
@@ -156,7 +172,11 @@ public class GamesManager implements Listener {
                 ConfigurationSection extraInfo = mapSection.getConfigurationSection("extra");
 
                 
-                gameMetaMap.get(gameOfficialName).put(mapName, new GameMeta(mapName, lobbyLocation, spectatorLocation, spawnLocations, extraInfo));
+                mapInfos.get(gameOfficialName).put(mapName, new MapInfo(mapName, spectatorLocation, spawnLocations, extraInfo));
+                DebugLogger.log("Loaded map " + mapName + " for game " + gameOfficialName, 1);
+                DebugLogger.log("Spectator location: " + spectatorLocation.toString(), 1);
+                DebugLogger.log("Spawn locations: " + spawnLocations.toString(), 1);
+                DebugLogger.log("Extra info: " + extraInfo.toString(), 1);
             }
         }
     }

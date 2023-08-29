@@ -23,6 +23,7 @@ public class ExplosionTimer extends BukkitRunnable {
     public void startTimer(int roundLength) {
         this.roundLength = roundLength;
         countDown = gracePeriod;
+        period = Period.GRACE_PERIOD;
         runTaskTimer(CMCMinigames.plugin, 0, 20);
     }
 

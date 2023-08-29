@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import dev.covector.cmcminigames.abs.WinLostGame;
 import dev.covector.cmcminigames.Utils;
+import dev.covector.cmcminigames.DebugLogger;
 
 public class HotPotato extends WinLostGame {
     private HotPotatoListener listener;
@@ -40,11 +41,13 @@ public class HotPotato extends WinLostGame {
     public boolean start(List<String> args) {
         // check if at least 2 players, if not return false
         if (playerUUIDs.size() < 2) {
+            DebugLogger.log("Not enough players to start game!", 1);
             return false;
         }
 
         // parse args
         if (args.size() != 3) {
+            DebugLogger.log("Invalid number of arguments!", 1);
             return false;
         }
         mode = Mode.valueOf(args.get(0));
@@ -53,6 +56,7 @@ public class HotPotato extends WinLostGame {
         if (mode == null || roundLength <= 0) {
             return false;
         }
+        DebugLogger.log("Starting game with mode " + mode.toString() + " and round length " + String.valueOf(roundLength) + " seconds and reset on tag set to " + (resetOnTag ? "true" : "false"), 1);
 
         // start listener and timer
         listener.register();
@@ -60,8 +64,9 @@ public class HotPotato extends WinLostGame {
 
         // choose random player to hold potato
         potatoHolderUUID = playerUUIDs.get(random.nextInt(playerUUIDs.size()));
+        DebugLogger.log("Chose " + Utils.getPlayerNameByUUID(potatoHolderUUID) + " to hold the potato", 1);
         // teleport players to spawns
-        Utils.distributePlayers(getOnlinePlayers(), gameMeta.spawnLocations);
+        Utils.distributePlayers(getOnlinePlayers(), mapInfo.spawnLocations);
         for (UUID playerUUID : playerUUIDs) {
             // add all players to alive list
             playerAliveUUIDs.add(playerUUID);
@@ -87,17 +92,21 @@ public class HotPotato extends WinLostGame {
         if (resetOnTag) {
             timer.resetTimer();
         }
+        if (DebugLogger.willLog(1))
+            DebugLogger.log(Utils.getPlayerNameByUUID(from.getUniqueId()) + " passed the potato to " + Utils.getPlayerNameByUUID(to.getUniqueId()), 1);
     }
 
     public void removePlayer(Player player) {
         playerAliveUUIDs.remove(player.getUniqueId());
         hotPotatoGameEndCheck();
+        DebugLogger.log(Utils.getPlayerNameByUUID(player.getUniqueId()) + " has been removed from the game", 1);
     }
 
     public void setSpectator(Player player) {
         player.getInventory().clear();
         player.setGameMode(GameMode.SPECTATOR);
-        player.teleport(gameMeta.spectatorLocation);
+        player.teleport(mapInfo.spectatorLocation);
+        DebugLogger.log(Utils.getPlayerNameByUUID(player.getUniqueId()) + " has been set to spectator", 1);
     }
 
     public void gracePeriodEnd() {
@@ -107,6 +116,7 @@ public class HotPotato extends WinLostGame {
                 player.sendMessage(ChatColor.RED + "Grace period has ended!");
             }
         }
+        DebugLogger.log("Grace period has ended", 1);
     }
 
     public boolean isGracePeriod() {
@@ -125,6 +135,7 @@ public class HotPotato extends WinLostGame {
                 }
             }
             hotPotatoGameEndCheck();
+            DebugLogger.log("Potato holder disconnected, still count as exploded", 1);
             return;
         }
 
@@ -145,12 +156,14 @@ public class HotPotato extends WinLostGame {
         }
 
         hotPotatoGameEndCheck();
+        DebugLogger.log("Potato exploded", 1);
     }
 
     public void nextRound() {
         // choose random player to hold potato
         potatoHolderUUID = playerAliveUUIDs.get(random.nextInt(playerAliveUUIDs.size()));
         items.giveHotPotatoItems(getPotatoHolder(), mode);
+        DebugLogger.log("Chose " + Utils.getPlayerNameByUUID(potatoHolderUUID) + " to hold the potato", 1);
     }
 
     public void hotPotatoGameEndCheck() {
@@ -158,6 +171,7 @@ public class HotPotato extends WinLostGame {
             super.win(playerAliveUUIDs.get(0));
             listener.unregister();
             timer.stopTimer();
+            DebugLogger.log("Sent game end event", 1);
         }
     }
 
