@@ -11,6 +11,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,10 +25,11 @@ import java.io.IOException;
 public class GamesManager implements Listener {
     public static GamesManager manager;
     private HashMap<UUID, Game> activeGames = new HashMap<UUID, Game>();
-    private HashMap<String, List<Player>> queuingPlayers = new HashMap<String, List<Player>>();
+    private HashMap<String, ArrayList<Player>> queuingPlayers = new HashMap<String, ArrayList<Player>>();
     private HashMap<Player, String> playerQueuedGame = new HashMap<Player, String>();
     private HashMap<UUID, Game> playerGameMap = new HashMap<UUID, Game>();
     private HashMap<String, HashMap<String, MapInfo>> mapInfos;
+    private HashMap<String, Location> lobbyLocations;
 
     public static GamesManager getInstance() {
         if (manager == null) {
@@ -98,11 +101,37 @@ public class GamesManager implements Listener {
         if (queuingPlayers.containsKey(gameOfficialName)) {
             queuingPlayers.get(gameOfficialName).add(player);
         } else {
-            queuingPlayers.put(gameOfficialName, Arrays.asList(player));
+            queuingPlayers.put(gameOfficialName, new ArrayList<>(Arrays.asList(player)));
         }
         playerQueuedGame.put(player, gameOfficialName);
+        // tp player to lobby
+        player.teleport(lobbyLocations.get(gameOfficialName));
+        player.setGameMode(GameMode.ADVENTURE);
         DebugLogger.log(player.getName() + " queued in " + gameOfficialName, 1);
         return null;
+    }
+
+    public boolean leave(Player player) {
+        // leave game
+        if (playerGameMap.containsKey(player.getUniqueId())) {
+            Game game = playerGameMap.get(player.getUniqueId());
+            game.removePlayer(player);
+            playerGameMap.remove(player.getUniqueId());
+            player.sendMessage(ChatColor.GREEN + "You have left the game!");
+            return true;
+        }
+
+        // leave queue
+        if (playerQueuedGame.containsKey(player)) {
+            String gameOfficialName = playerQueuedGame.get(player);
+            queuingPlayers.get(gameOfficialName).remove(player);
+            playerQueuedGame.remove(player);
+            player.sendMessage(ChatColor.GREEN + "You have left the queue!");
+            return true;
+        }
+        
+        player.sendMessage(ChatColor.RED + "You are not in a game or queue!");
+        return false;
     }
 
     @EventHandler
@@ -110,6 +139,11 @@ public class GamesManager implements Listener {
         Game game = activeGames.get(event.getId());
         for (UUID playerUUID : game.getPlayerUUIDs()) {
             playerGameMap.remove(playerUUID);
+        }
+        for (Player player : game.getOnlinePlayers()) {
+            // teleport player to lobby
+            player.teleport(game.getMapInfo().lobbyLocation);
+            player.setGameMode(GameMode.ADVENTURE);
         }
         activeGames.remove(event.getId());
         DebugLogger.log("game ended: " + game.getClass().getSimpleName(), 1);
@@ -121,6 +155,32 @@ public class GamesManager implements Listener {
 
     public void unregisterListeners() {
         GameEndEvent.getHandlerList().unregister(this);
+    }
+
+    public void forceEndAllGames() {
+        for (Game game : activeGames.values()) {
+            game.forceEnd();
+        }
+    }
+
+    public void listQueues(Player player) {
+        player.sendMessage(ChatColor.GREEN + "Queues:");
+        for (String gameOfficialName : queuingPlayers.keySet()) {
+            player.sendMessage(ChatColor.GREEN + gameOfficialName + ": ");
+            for (Player queuedPlayer : queuingPlayers.get(gameOfficialName)) {
+                player.sendMessage(ChatColor.GREEN + "    - " + queuedPlayer.getName());
+            }
+        }
+    }
+
+    public void listGames(Player player) {
+        player.sendMessage(ChatColor.GREEN + "Games:");
+        for (Game game : activeGames.values()) {
+            player.sendMessage(ChatColor.GREEN + game.getClass().getSimpleName() + ":");
+            for (Player gamePlayer : game.getOnlinePlayers()) {
+                player.sendMessage(ChatColor.GREEN + "    - " + gamePlayer.getName());
+            }
+        }
     }
 
     public void loadMaps() {
@@ -140,6 +200,7 @@ public class GamesManager implements Listener {
 
         // load maps into mapInfo
         mapInfos = new HashMap<String, HashMap<String, MapInfo>>();
+        lobbyLocations = new HashMap<String, Location>();
         for (String gameKey : customConfig.getKeys(false)) {
             String gameOfficialName = GameRegistry.getGameName(gameKey);
             if (gameOfficialName == null) {
@@ -150,8 +211,22 @@ public class GamesManager implements Listener {
                 mapInfos.put(gameOfficialName, new HashMap<String, MapInfo>());
             }
             ConfigurationSection section = customConfig.getConfigurationSection(gameKey);
-            for (String mapKey : section.getKeys(false)) {
-                ConfigurationSection mapSection = section.getConfigurationSection(mapKey);
+
+            Location lobbyLocation = parseVector(section.getString("lobby")).toLocation(Bukkit.getWorld(section.getString("lobby-world")));
+            if (lobbyLocation == null) {
+                Bukkit.getLogger().warning("Invalid lobby location for game " + gameOfficialName + "!");
+                continue;
+            }
+
+            lobbyLocations.put(gameOfficialName, lobbyLocation);
+
+            ConfigurationSection mapsSection = section.getConfigurationSection("maps");
+            if (mapsSection == null) {
+                Bukkit.getLogger().warning("No maps found for game " + gameOfficialName + "!");
+                continue;
+            }
+            for (String mapKey : mapsSection.getKeys(false)) {
+                ConfigurationSection mapSection = mapsSection.getConfigurationSection(mapKey);
                 String mapName = mapKey;
                 World world = Bukkit.getWorld(mapSection.getString("world"));
                 if (world == null) {
@@ -175,7 +250,8 @@ public class GamesManager implements Listener {
                 ConfigurationSection extraInfo = mapSection.getConfigurationSection("extra");
 
                 
-                mapInfos.get(gameOfficialName).put(mapName, new MapInfo(mapName, spectatorLocation, spawnLocations, extraInfo));
+                mapInfos.get(gameOfficialName).put(mapName, new MapInfo(mapName, spectatorLocation, lobbyLocation, spawnLocations, extraInfo));
+
                 DebugLogger.log("Loaded map " + mapName + " for game " + gameOfficialName, 1);
                 DebugLogger.log("Spectator location: " + spectatorLocation.toString(), 1);
                 DebugLogger.log("Spawn locations: " + spawnLocations.toString(), 1);

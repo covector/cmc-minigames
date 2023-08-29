@@ -5,6 +5,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.EventHandler;
 import org.bukkit.entity.Player;
 
@@ -33,11 +35,24 @@ public class HotPotatoListener implements Listener {
         Player attacker = (Player) event.getDamager();
         Player attacked = (Player) event.getEntity();
         if (attacker == attacked) return;
+        if (event.getDamage() < 0.01) return;
         if (!hotpotato.playerIsInGame(attacker) || !hotpotato.playerIsInGame(attacked)) return;
         if (hotpotato.getPotatoHolder() != attacker) return;
 
         // pass potato to attacked player
         hotpotato.passPotato(attacker, attacked);
+    }
+
+    @EventHandler
+    public void onFallDamage(EntityDamageEvent e) {
+        // cancel fall damage if player is in game
+        if (!(e.getEntity() instanceof Player)) return;
+        Player player = (Player) e.getEntity();
+        if (e.getCause() == DamageCause.FALL){
+            if (hotpotato.playerIsInGame(player)) {
+                e.setCancelled(true);
+            }
+        }
     }
 
     @EventHandler
@@ -71,5 +86,6 @@ public class HotPotatoListener implements Listener {
         PlayerQuitEvent.getHandlerList().unregister(this);
         PlayerRespawnEvent.getHandlerList().unregister(this);
         EntityDamageByEntityEvent.getHandlerList().unregister(this);
+        EntityDamageEvent.getHandlerList().unregister(this);
     }
 }

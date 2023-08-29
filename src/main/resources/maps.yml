@@ -1,12 +1,15 @@
 HotPotato:
-  SkyValley:
-    world: world
-    spectator: 0, 0, 0
-    spawns:
-      - 0, 0, 0
-      - 5, 0, 0
-  Candyland:
-    world: world
-    spectator: 0, 0, 0
-    spawns:
-      - 0, 0, 0
+  lobby: 0, 0, 0
+  lobby-world: world
+  maps:
+    SkyValley:
+      world: world
+      spectator: 0, 0, 0
+      spawns:
+        - 0, 0, 0
+        - 5, 0, 0
+    Candyland:
+      world: world
+      spectator: 0, 0, 0
+      spawns:
+        - 0, 0, 0

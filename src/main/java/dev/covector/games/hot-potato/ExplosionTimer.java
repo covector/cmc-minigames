@@ -1,5 +1,6 @@
 package dev.covector.cmcminigames.hotpotato;
 
+import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;

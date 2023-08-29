@@ -39,6 +39,10 @@ public abstract class Game {
         return onlinePlayers;
     }
 
+    public void removePlayer(Player player) {
+        playerUUIDs.remove(player.getUniqueId());
+    }
+
     public boolean playerIsInGame(Player player) {
         return playerUUIDs.contains(player.getUniqueId());
     }
@@ -54,4 +58,5 @@ public abstract class Game {
     // ONLY OVERRIDE THESE
     public abstract boolean start(List<String> args);
     public abstract String getArgsSyntax();
+    public abstract void forceEnd();
 }

@@ -14,6 +14,16 @@ import java.util.Arrays;
 public class CommandHandler implements CommandExecutor {    
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (args.length < 1) return false;
+
+        if (args[0].equals("reload")) {
+            GamesManager.getInstance().loadMaps();
+            sender.sendMessage(ChatColor.GREEN + "Reloaded maps!");
+            return true;
+        } else if (args[0].equals("leave")) {
+            return GamesManager.getInstance().leave((Player) sender);
+        }
+
         if (args.length < 2) return false;
 
         if (args[0].equals("join")) {
@@ -46,10 +56,15 @@ public class CommandHandler implements CommandExecutor {
             DebugLogger.setLogLevel(logLevel);
             sender.sendMessage(ChatColor.GREEN + "Set log level to " + logLevel + "!");
             return true;
-        } else if (args[0].equals("reload") && args[1].equals("maps")) {
-            GamesManager.getInstance().loadMaps();
-            sender.sendMessage(ChatColor.GREEN + "Reloaded maps!");
-            return true;
+        } else if (args[0].equals("list")) {
+            if (args.length < 2) return false;
+            if (args[1].equals("queue")) {
+                GamesManager.getInstance().listQueues((Player) sender);
+                return true;
+            } else if (args[1].equals("games")) {
+                GamesManager.getInstance().listGames((Player) sender);
+                return true;
+            }
         }
 
         return false;

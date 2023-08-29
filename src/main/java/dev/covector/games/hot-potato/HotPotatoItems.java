@@ -9,6 +9,7 @@ import org.bukkit.Color;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.enchantments.Enchantment;
 
 import java.util.List;
 import java.util.Arrays;
@@ -29,6 +30,7 @@ public class HotPotatoItems {
         ItemMeta itemMeta = item.getItemMeta();
         itemMeta.setDisplayName(ChatColor.RED + "Hot Potato");
         itemMeta.setLore(Arrays.asList(ChatColor.GRAY + "Pass this to another player before it explodes!"));
+        itemMeta.addEnchant(Enchantment.BINDING_CURSE, 1, true);
         item.setItemMeta(itemMeta);
         player.getInventory().addItem(item);
 

@@ -18,6 +18,7 @@ public class CMCMinigames extends JavaPlugin{
     @Override
     public void onDisable() {
         GamesManager.getInstance().unregisterListeners();
+        GamesManager.getInstance().forceEndAllGames();
         getCommand("mg").setExecutor(null);
         getLogger().info("CMC Minigames Plugin Deactivated!");
     }
