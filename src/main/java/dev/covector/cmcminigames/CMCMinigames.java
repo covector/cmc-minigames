@@ -2,6 +2,8 @@ package dev.covector.cmcminigames;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
+import dev.covector.cmcminigames.gamesmanager.*;
+
 public class CMCMinigames extends JavaPlugin{
     public static CMCMinigames plugin;
 

@@ -1,4 +1,4 @@
-package dev.covector.cmcminigames;
+package dev.covector.cmcminigames.gamesmanager;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -21,6 +21,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.io.File;
 import java.io.IOException;
+
+import dev.covector.cmcminigames.CMCMinigames;
+import dev.covector.cmcminigames.DebugLogger;
+import dev.covector.cmcminigames.games.Game;
+import dev.covector.cmcminigames.games.GameEndEvent;
+import dev.covector.cmcminigames.games.MapInfo;
 
 public class GamesManager implements Listener {
     public static GamesManager manager;

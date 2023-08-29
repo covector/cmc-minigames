@@ -1,4 +1,4 @@
-package dev.covector.cmcminigames.abs;
+package dev.covector.cmcminigames.games.abstractions;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Collections;
 import java.util.UUID;
 
-import dev.covector.cmcminigames.Game;
 import dev.covector.cmcminigames.DebugLogger;
 
 public abstract class TeamGame extends WinLostGame {

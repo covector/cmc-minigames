@@ -1,9 +1,8 @@
-package dev.covector.cmcminigames;
+package dev.covector.cmcminigames.games;
 
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 
-import java.util.HashMap;
 import java.util.List;
 
 public class MapInfo 

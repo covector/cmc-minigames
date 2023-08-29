@@ -1,4 +1,4 @@
-package dev.covector.cmcminigames.hotpotato;
+package dev.covector.cmcminigames.games.hotpotato;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -11,7 +11,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.enchantments.Enchantment;
 
-import java.util.List;
 import java.util.Arrays;
 
 public class HotPotatoItems {

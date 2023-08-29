@@ -1,12 +1,11 @@
-package dev.covector.cmcminigames.abs;
+package dev.covector.cmcminigames.games.abstractions;
 
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.Bukkit;
 
 import java.util.UUID;
 
-import dev.covector.cmcminigames.Game;
+import dev.covector.cmcminigames.games.Game;
 
 public abstract class WinLostGame extends Game {
     public void win(UUID winnerUUID) {

@@ -1,11 +1,8 @@
-package dev.covector.cmcminigames.hotpotato;
+package dev.covector.cmcminigames.games.hotpotato;
 
-import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-
-import java.util.List;
 
 import dev.covector.cmcminigames.CMCMinigames;
 

@@ -1,4 +1,4 @@
-package dev.covector.cmcminigames.hotpotato;
+package dev.covector.cmcminigames.games.hotpotato;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
@@ -9,10 +9,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.EventHandler;
 import org.bukkit.entity.Player;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.ArrayList;
 
 import dev.covector.cmcminigames.CMCMinigames;
 

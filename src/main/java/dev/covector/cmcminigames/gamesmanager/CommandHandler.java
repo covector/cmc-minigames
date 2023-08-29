@@ -1,6 +1,5 @@
-package dev.covector.cmcminigames;
+package dev.covector.cmcminigames.gamesmanager;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -10,6 +9,8 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import dev.covector.cmcminigames.DebugLogger;
 
 public class CommandHandler implements CommandExecutor {    
     @Override

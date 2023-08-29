@@ -1,4 +1,4 @@
-package dev.covector.cmcminigames.hotpotato;
+package dev.covector.cmcminigames.games.hotpotato;
 
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -7,7 +7,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.ChatColor;
 import org.bukkit.Bukkit;
-import org.bukkit.event.Listener;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -16,7 +15,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.ArrayList;
 
-import dev.covector.cmcminigames.abs.WinLostGame;
+import dev.covector.cmcminigames.games.abstractions.WinLostGame;
 import dev.covector.cmcminigames.Utils;
 import dev.covector.cmcminigames.DebugLogger;
 
@@ -149,7 +148,7 @@ public class HotPotato extends WinLostGame {
             for (UUID playerUUID : playerUUIDs) {
                 Player player = Bukkit.getPlayer(playerUUID);
                 if (player != null) {
-                    player.sendMessage(ChatColor.RED + potatoHolder.getName() + " tried to escape the explosion by logging out. As a result, they blew up in real life.");
+                    player.sendMessage(ChatColor.RED + Utils.getPlayerNameByUUID(playerUUID) + " tried to escape the explosion by logging out. As a result, they blew up in real life.");
                 }
             }
             hotPotatoGameEndCheck();
