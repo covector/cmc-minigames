@@ -43,7 +43,10 @@ public class GamesManager implements Listener {
         if (!queuingPlayers.containsKey(gameOfficialName)) {
             return "No players in queue!";
         }
-        Game game = GameRegistry.initGame(gameName);
+        Game game = GameRegistry.initGame(gameOfficialName);
+        if (game == null) {
+            return "Game not found!";
+        }   
 
         UUID gameID = UUID.randomUUID();
         List<UUID> players = new ArrayList<UUID>();
@@ -63,7 +66,7 @@ public class GamesManager implements Listener {
         }
     
         game.init(gameID, players, mapInfo);
-        DebugLogger.log("game start called: " + game.getClass().getName(), 1);
+        DebugLogger.log("game start called: " + game.getClass().getSimpleName(), 1);
         if (DebugLogger.willLog(1)) {
             for (UUID playerUUID : players) {
                 DebugLogger.log("player: " + Bukkit.getPlayer(playerUUID).getName(), 1);
@@ -109,7 +112,7 @@ public class GamesManager implements Listener {
             playerGameMap.remove(playerUUID);
         }
         activeGames.remove(event.getId());
-        DebugLogger.log("game ended: " + game.getClass().getName(), 1);
+        DebugLogger.log("game ended: " + game.getClass().getSimpleName(), 1);
     }
 
     public void registerListeners() {
@@ -176,7 +179,7 @@ public class GamesManager implements Listener {
                 DebugLogger.log("Loaded map " + mapName + " for game " + gameOfficialName, 1);
                 DebugLogger.log("Spectator location: " + spectatorLocation.toString(), 1);
                 DebugLogger.log("Spawn locations: " + spawnLocations.toString(), 1);
-                DebugLogger.log("Extra info: " + extraInfo.toString(), 1);
+                DebugLogger.log("Extra info: " + (extraInfo == null ? "null" : extraInfo.toString()), 1);
             }
         }
     }

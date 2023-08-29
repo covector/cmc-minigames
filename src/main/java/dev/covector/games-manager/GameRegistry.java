@@ -1,5 +1,7 @@
 package dev.covector.cmcminigames;
 
+import org.bukkit.Bukkit;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -12,17 +14,16 @@ public class GameRegistry
         HotPotato.class
     );
 
-    public static <T extends Game> Game initGame(String gameName) {
-        Class<T> gameClass = getGameClass(gameName);
+    public static Game initGame(String gameName) {
+        Class gameClass = getGameClass(gameName);
         if (gameClass == null) {
             return null;
         }
         try {
-            return gameClass.newInstance();
+            return (Game) gameClass.newInstance();
         } catch (InstantiationException e) {
+            return null;
         } catch (IllegalAccessException e) {
-        }
-        finally {
             return null;
         }
     }
@@ -32,13 +33,13 @@ public class GameRegistry
     }
 
     public static String getGameName(String gameName) {
-        return getGameClass(gameName).getName();
+        return getGameClass(gameName).getSimpleName();
     }
 
-    private static <T extends Game> Class<T> getGameClass(String gameName) {
-        for (Class<T> game : gameList) {
-            if (game.getName().toLowerCase().equals(gameName.toLowerCase().replaceAll("_", "").replaceAll("-", ""))) {
-                DebugLogger.log(gameName + " matched with " + game.getName(), 2);
+    private static Class getGameClass(String gameName) {
+        for (Class game : gameList) {
+            if (game.getSimpleName().toLowerCase().equals(gameName.toLowerCase().replaceAll("_", "").replaceAll("-", ""))) {
+                DebugLogger.log(gameName + " matched with " + game.getSimpleName(), 2);
                 return game;
             }
         }

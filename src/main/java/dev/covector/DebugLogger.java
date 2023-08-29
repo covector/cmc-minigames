@@ -9,7 +9,7 @@ public class DebugLogger
 
     public static void log(String message, int level) {
         if (level <= LOG_LEVEL) {
-            Bukkit.broadcastMessage(ChatColor.RED + "[DEBUG] - " + ChatColor.RESET + message);
+            Bukkit.broadcastMessage(ChatColor.YELLOW + "[DEBUG] - " + ChatColor.RESET + message);
         }
     }
 
